@@ -1,24 +1,32 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+from __future__ import annotations
+
 import base64
 import os
 import random
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from common_captcha.utils.redis_util import init_redis
+from common_captcha.utils.redis_util import RedisUtil
 from common_captcha.utils.uuid_util import generate_uuid
-from common_captcha.utils.ramdom_util import (
-    generate_random_background_color,
-    generate_code_chr,
-)
+from common_captcha.utils.ramdom_util import generate_random_background_color, generate_code_chr
 
 
 class SimpleCaptcha:
     """ 简单验证码 """
 
+    simple_captcha_cache_key = "SimpleCaptcha"
+    simple_captcha_cache_key_expire = 6000
+    base64_image_prefix = "data:image/jpeg;base64,{data}"
+    base64_image__type = "png"
+    _data_encoding = "utf-8"
+
+    def __init__(self, redis_url: str = None):
+        self.redis = RedisUtil(redis_url=redis_url)
+
     @staticmethod
     def get_font_size_resource() -> os.path:
-        return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'resources', 'fonts',
+        return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'resource', 'fonts',
                             'WenQuanZhengHei.ttf')
 
     @staticmethod
@@ -69,33 +77,41 @@ class SimpleCaptcha:
                 draw.arc((x, y, x + 4, y + 4), 0, 90, fill=generate_random_background_color())
         return image
 
-    @classmethod
-    def get_code_with_base64_string(
-            cls, font_size: int = 35, code_length: int = 4,
-            width: int = 120, height: int = 35, need_noise: bool = True) -> str:
+    def get_cache_key(self, token: str) -> str:
+        return f'{self.simple_captcha_cache_key}:{token}'
+
+    def get(self, font_size: int = 35, code_length: int = 4, width: int = 120,
+                                    height: int = 35, need_noise: bool = False) -> dict:
         token = generate_uuid()
-        code, im = cls.draw_code(font_size, code_length, width, height)
+        code, im = self.draw_code(font_size, code_length, width, height)
         if need_noise:
-            im = cls.noise(im)
+            im = self.noise(im)
         f = BytesIO()
-        im.save(f, 'png')
-        im.save('./code.png')
+        im.save(f, self.base64_image__type)
         data = f.getvalue()
         f.close()
         encode_data = base64.b64encode(data)
-        data = str(encode_data, encoding='utf-8')
-        img_data = "data:image/jpeg;base64,{data}".format(data=data)
+        data = str(encode_data, encoding=self._data_encoding)
+        img_data = self.base64_image_prefix.format(data=data)
+        cache_key = self.get_cache_key(token)
+        self.redis.setex(cache_key, code, self.simple_captcha_cache_key_expire)
+        return {"base64ImageString": img_data, "token": token}
 
-        cache_key = f'SimpleCaptcha:{token}'
-        init_redis().setex(cache_key, code, 6000)
-        return img_data
+    def verify(self, params: dict) -> bool:
+        token = params.get("token") or ""
+        code = params.get("code") or ""
 
-    @classmethod
-    def verify(cls, params: str, token: str):
-        cache_key = f'SimpleCaptcha:{token}'
-        base64.b64decode(params.encode()).decode()
-        pass
+        cache_key = self.get_cache_key(token)
+        cache_value_bytes = self.redis.get(cache_key)
+        if not cache_value_bytes:
+            return False
+        if cache_value_bytes.decode() == code:
+            self.redis.delete(cache_key)
+            return True
+        return False
 
 
 if __name__ == '__main__':
-    print(SimpleCaptcha.get_code_with_base64_string())
+    simple_captcha = SimpleCaptcha(redis_url="redis://:O82cW8c8Qz@172.16.211.111:30180/11")
+    print(simple_captcha.get())
+    # print(simple_captcha.verify({"token": "99aae7ca742c42bb884a2d7d898b589d", "code": "z8o5"}))
