@@ -1,8 +1,14 @@
 ==============
-common_captcha
+common-captcha
 ==============
 
-验证码程序，包括简单验证码和滑块验证码
+common-captcha 验证码程序，包括简单验证码和滑块验证码，基于用户行为验证
+
+Features
+====================================
+
+- 简单验证码
+- 滑动拼图验证码
 
 Introduction
 ====================================
@@ -11,8 +17,14 @@ Install with pip:
 
 .. code-block:: console
 
-    $ python -m pip install common-captcha
+    $ pip install common-captcha
 
+Preview
+====================================
+
+滑块验证码
+
+.. image:: https://gitee.com/anji-plus/captcha/raw/master/images/%E6%BB%91%E5%8A%A8%E6%8B%BC%E5%9B%BE.gif
 
 How To Use?
 ====================================
@@ -24,7 +36,8 @@ How To Use?
     redis_url redis://xxxxxx:xxxxxx@xxxxx:xxx/11
 
 
-定制化配置信息说明
+Configuration
+====================================
 
 .. code-block:: python
 
@@ -55,7 +68,6 @@ How To Use?
 
     from common_captcha.config import BlockPuzzleCaptchaConfig as _baseConfig
 
-
     class BlockPuzzleCaptchaConfig(_baseConfig):
         font_water_text_font_size = 30
         font_water_text = "中国传媒大学"
@@ -67,9 +79,9 @@ How To Use?
 
     from common_captcha.strategy.simple_captcha import SimpleCaptcha
 
-    simple_captcah = SimpleCaptcha(redis_url="redis://xxxxxx:xxxxxx@xxxxx:xxx/11", configs=BlockPuzzleCaptchaConfig)
-    print(simple_captcah.get())
-    print(simple_captcah.verify({"token": "", "code": ""}))
+    simple_captcha = SimpleCaptcha(redis_url="redis://xxxxxx:xxxxxx@xxxxx:xxx/11", configs=BlockPuzzleCaptchaConfig)
+    print(simple_captcha.get())
+    print(simple_captcha.verify({"token": "", "code": ""}))
 
 
 滑块验证码:
