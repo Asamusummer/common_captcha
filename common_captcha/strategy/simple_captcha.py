@@ -11,19 +11,28 @@ from common_captcha import BASE_DIR
 from common_captcha.utils.redis_util import RedisUtil
 from common_captcha.utils.uuid_util import generate_uuid
 from common_captcha.utils.ramdom_util import generate_random_background_color, generate_code_chr
+from common_captcha.config import SimpleCaptchaConfig
 
 
 class SimpleCaptcha:
     """ 简单验证码 """
 
-    simple_captcha_cache_key = "SimpleCaptcha"
-    simple_captcha_cache_key_expire = 6000
     base64_image_prefix = "data:image/jpeg;base64,{data}"
     base64_image__type = "png"
     _data_encoding = "utf-8"
 
-    def __init__(self, redis_url: str = None):
+    def __init__(self, redis_url: str = None, configs=None):
         self.redis = RedisUtil(redis_url=redis_url)
+        self.__init_configs(configs)
+
+    def __init_configs(self, configs: SimpleCaptchaConfig = None) -> None:
+        if configs:
+            self.simple_captcha_cache_key = configs.simple_captcha_cache_key
+            self.simple_captcha_cache_key_expire = configs.simple_captcha_cache_key_expire
+        else:
+            self.simple_captcha_cache_key = SimpleCaptchaConfig.simple_captcha_cache_key
+            self.simple_captcha_cache_key_expire = SimpleCaptchaConfig.simple_captcha_cache_key_expire
+        return None
 
     @staticmethod
     def get_font_size_resource() -> os.path:

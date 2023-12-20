@@ -9,29 +9,46 @@ from common_captcha.utils.redis_util import RedisUtil
 from common_captcha.utils.ramdom_util import generate_random_int
 from common_captcha.utils.image_util import ImageUtil, image_to_rgba, open_image, is_opcacity
 from common_captcha.utils.uuid_util import generate_uuid
+from common_captcha.config import BlockPuzzleCaptchaConfig
 
 
 class BlockPuzzleCaptcha:
     """ 滑块拼图验证码 """
 
-    block_puzzle_captcha_cache_key = "BlockPuzzleCaptcha"
-    block_puzzle_captcha_cache_key_expire = 6000
-    block_puzzle_captcha_check_offsetX = 10
-    background_image_root_path = "resource/defaultImages/jigsaw/original"
-    template_image_root_path = "resource/defaultImages/jigsaw/slidingBlock"
-    pic_click_root_path = "resource/defaultImages/pic-click"
-    font_ttf_root_path = "resource/fonts/WenQuanZhengHei.ttf"
-    font_water_text = "lei.wang"
-    font_water_text_font_size = 12
+    base64_image_prefix = "data:image/jpeg;base64,{data}"
     _data_encoding = "utf-8"
 
-    def __init__(self, redis_url: str = None):
+    def __init__(self, redis_url: str = None, configs=None):
         self.redis = RedisUtil(redis_url=redis_url)
+        self.__init_configs(configs)
         self.background_image_list = list()
         self.template_image_root = list()
         self.click_background_image_root = list()
         self.points = dict()
         self.set_up()
+
+    def __init_configs(self, configs: BlockPuzzleCaptchaConfig = None) -> None:
+        if not configs:
+            self.block_puzzle_captcha_cache_key = BlockPuzzleCaptchaConfig.block_puzzle_captcha_cache_key
+            self.block_puzzle_captcha_cache_key_expire = BlockPuzzleCaptchaConfig.block_puzzle_captcha_cache_key_expire
+            self.block_puzzle_captcha_check_offsetX = BlockPuzzleCaptchaConfig.block_puzzle_captcha_check_offsetX
+            self.background_image_root_path = BlockPuzzleCaptchaConfig.background_image_root_path
+            self.template_image_root_path = BlockPuzzleCaptchaConfig.template_image_root_path
+            self.pic_click_root_path = BlockPuzzleCaptchaConfig.pic_click_root_path
+            self.font_ttf_root_path = BlockPuzzleCaptchaConfig.font_ttf_root_path
+            self.font_water_text = BlockPuzzleCaptchaConfig.font_water_text
+            self.font_water_text_font_size = BlockPuzzleCaptchaConfig.font_water_text_font_size
+            return None
+        self.block_puzzle_captcha_cache_key = configs.block_puzzle_captcha_cache_key
+        self.block_puzzle_captcha_cache_key_expire = configs.block_puzzle_captcha_cache_key_expire
+        self.block_puzzle_captcha_check_offsetX = configs.block_puzzle_captcha_check_offsetX
+        self.background_image_root_path = configs.background_image_root_path
+        self.template_image_root_path = configs.template_image_root_path
+        self.pic_click_root_path = configs.pic_click_root_path
+        self.font_ttf_root_path = configs.font_ttf_root_path
+        self.font_water_text = configs.font_water_text
+        self.font_water_text_font_size = configs.font_water_text_font_size
+        return None
 
     def get_resources(self, path_str: str) -> os.path:
         return os.path.join(BASE_DIR, path_str)
@@ -215,8 +232,8 @@ class BlockPuzzleCaptcha:
         jigsawImageBase64 = template_image.base64_encode_image(template_image.rgba_image)
 
         data = {
-            'backgroundBase64ImageStr': originalImageBase64,
-            'picCheckerBase64ImageStr': jigsawImageBase64,
+            'backgroundBase64ImageStr': self.base64_image_prefix.format(data=originalImageBase64),
+            'picCheckerBase64ImageStr': self.base64_image_prefix.format(data=jigsawImageBase64),
             'token': generate_uuid(),
         }
         # 设置redis缓存
