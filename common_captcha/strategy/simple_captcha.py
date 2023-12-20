@@ -112,6 +112,6 @@ class SimpleCaptcha:
 
 
 if __name__ == '__main__':
-    simple_captcha = SimpleCaptcha(redis_url="redis://:O82cW8c8Qz@172.16.211.111:30180/11")
+    simple_captcha = SimpleCaptcha(redis_url="redis://xxxxxx:xxxxxx@xxxxx:xxx/11")
     print(simple_captcha.get())
     # print(simple_captcha.verify({"token": "99aae7ca742c42bb884a2d7d898b589d", "code": "z8o5"}))

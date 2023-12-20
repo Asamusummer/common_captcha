@@ -8,7 +8,7 @@ import json
 
 class RedisUtil:
 
-    def __init__(self, redis_url: str = "redis://:O82cW8c8Qz@172.16.211.111:30180/11") -> None:
+    def __init__(self, redis_url: str = "redis://xxxxxx:xxxxxx@xxxxx:xxx/11") -> None:
         self.redis_url = redis_url
 
     @property
