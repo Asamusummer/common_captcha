@@ -7,6 +7,7 @@ import os
 import random
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+from common_captcha import BASE_DIR
 from common_captcha.utils.redis_util import RedisUtil
 from common_captcha.utils.uuid_util import generate_uuid
 from common_captcha.utils.ramdom_util import generate_random_background_color, generate_code_chr
@@ -26,8 +27,7 @@ class SimpleCaptcha:
 
     @staticmethod
     def get_font_size_resource() -> os.path:
-        return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'resource', 'fonts',
-                            'WenQuanZhengHei.ttf')
+        return os.path.join(BASE_DIR, 'resource', 'fonts', 'WenQuanZhengHei.ttf')
 
     @staticmethod
     def generate_background_size_picture(width: int = 120, height: int = 35) -> Image:
