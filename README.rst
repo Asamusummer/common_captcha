@@ -1,30 +1,10 @@
-=========================
+==============
 common_captcha
-=========================
+==============
 
-common captcha for web server
+验证码程序，包括简单验证码和滑块验证码
 
-Introdution
------------
+Introduction
+====================================
 
-通用验证码，包括简单验证码，数字，字母，滑块验证码等
-
-
-Requirements
-~~~~~~~~~~~~
-
-- `python`_ 3.6+
-- `redis`_ latest
-
-
-Use Guide
----------
-
-Installtion
-~~~~~~~~~~~
-
-Install with pip:
-
-.. code-block:: console
-
-    $ python -m pip install common_captcha
+pip install common_captcha
