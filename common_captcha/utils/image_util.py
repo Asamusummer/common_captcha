@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import base64
+import os
 from io import BytesIO
 from PIL import ImageFont, ImageDraw, Image
+from common_captcha import BASE_DIR
 
 
 class ImageUtil:
@@ -66,3 +68,15 @@ def is_opcacity(rgba_image, x, y) -> bool:
     """ 判断图像是否透明 """
 
     return rgba_image.getpixel((x, y))[3] <= 125
+
+
+def get_font_path() -> str:
+    return os.path.join(BASE_DIR, "resource/fonts/WenQuanZhengHei.ttf")
+
+
+def set_art_text(background_image: ImageUtil, word: str, font_size: int, point: dict) -> None:
+
+    font = ImageFont.truetype(get_font_path(), font_size)
+    rgba_image = ImageDraw.Draw(background_image.rgba_image)
+    rgba_image.text((point.get("x"), point.get("y")), word, font=font)
+    return None
