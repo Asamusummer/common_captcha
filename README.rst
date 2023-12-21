@@ -24,12 +24,13 @@ Preview
 
 滑块验证码
 
-.. image:: https://gitee.com/anji-plus/captcha/raw/master/images/%E6%BB%91%E5%8A%A8%E6%8B%BC%E5%9B%BE.gif
+https://github.com/Asamusummer/common_captcha/blob/main/%E6%BB%91%E5%8A%A8%E6%8B%BC%E5%9B%BE.gif
 
 
 点击文字验证
 
-.. image:: https://gitee.com/anji-plus/captcha/raw/master/images/%E7%82%B9%E9%80%89%E6%96%87%E5%AD%97.gif
+https://github.com/Asamusummer/common_captcha/blob/main/%E7%82%B9%E9%80%89%E6%96%87%E5%AD%97.gif
+
 
 How To Use?
 ====================================
